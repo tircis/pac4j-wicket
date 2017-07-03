@@ -5,7 +5,6 @@ import org.apache.wicket.core.request.handler.RenderPageRequestHandler;
 import org.apache.wicket.request.IRequestCycle;
 import org.apache.wicket.request.IRequestHandler;
 import org.apache.wicket.request.cycle.RequestCycle;
-import org.gama.pac4j.wicket.SecurityContext;
 import org.pac4j.core.config.Config;
 import org.pac4j.core.context.J2EContext;
 import org.pac4j.core.engine.DefaultLogoutLogic;
@@ -44,7 +43,7 @@ public class LogoutRequestHandler implements IRequestHandler {
 				null,    // no pattern is necessary since it shouldn't get called
 				true,    // of course, what else ?
 				true,    // to be sure that nothing stays in the Wicket application
-				true    // we want to be deconnected from the application only, not the central SSO system
+				false    // we want to be deconnected from the application only, not the central SSO system
 		);
 	}
 	

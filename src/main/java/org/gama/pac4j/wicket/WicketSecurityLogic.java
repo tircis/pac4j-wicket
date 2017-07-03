@@ -1,9 +1,15 @@
 package org.gama.pac4j.wicket;
 
+import java.util.List;
+
 import org.apache.wicket.Application;
+import org.apache.wicket.RestartResponseAtInterceptPageException;
+import org.apache.wicket.markup.html.pages.RedirectPage;
 import org.pac4j.core.client.Client;
+import org.pac4j.core.client.IndirectClient;
 import org.pac4j.core.context.J2EContext;
 import org.pac4j.core.engine.DefaultSecurityLogic;
+import org.pac4j.core.exception.HttpAction;
 
 /**
  * @author Guillaume Mary
@@ -14,6 +20,10 @@ public class WicketSecurityLogic extends DefaultSecurityLogic<Void, J2EContext> 
 	
 	public WicketSecurityLogic(String callbackUrl) {
 		this.callbackUrl = callbackUrl;
+		// Authorization is made by Wicket, no need of the default AuthorizationChecker
+		setAuthorizationChecker((context1, profiles, authorizerNames, authorizersMap) -> true);
+		// URL matching is made by Wicket, no need of the default MatchingChecker
+		setMatchingChecker((context1, matcherNames, matchersMap) -> true);
 	}
 	
 	public void perform(Client client) {
@@ -33,5 +43,10 @@ public class WicketSecurityLogic extends DefaultSecurityLogic<Void, J2EContext> 
 									// DefaultSecurityLogic#perform(..) method)
 				true	// we do our best
 		);
+	}
+	
+	protected HttpAction redirectToIdentityProvider(J2EContext context, List<Client> currentClients) throws HttpAction {
+		IndirectClient currentClient = (IndirectClient) currentClients.get(0);
+		throw new RestartResponseAtInterceptPageException(new RedirectPage(currentClient.getRedirectAction(context).getLocation()));
 	}
 }
