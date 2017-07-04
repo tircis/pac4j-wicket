@@ -19,7 +19,7 @@ import org.pac4j.core.profile.CommonProfile;
 /**
  * @author Guillaume Mary
  */
-public abstract class Pac4JApplication extends AuthenticatedWebApplication {
+public abstract class Pac4jApplication extends AuthenticatedWebApplication {
 	
 	private Url indirectClientCallbackUrl;
 	
@@ -76,14 +76,14 @@ public abstract class Pac4JApplication extends AuthenticatedWebApplication {
 	@Override
 	protected abstract Class<? extends WebPage> getSignInPageClass();
 	
-	public static class Pac4JSession extends AbstractAuthenticatedWebSession {
+	public static class Pac4jSession extends AbstractAuthenticatedWebSession {
 		
 		/**
 		 * Construct.
 		 *
 		 * @param request The current request object
 		 */
-		public Pac4JSession(Request request) {
+		public Pac4jSession(Request request) {
 			super(request);
 		}
 		
