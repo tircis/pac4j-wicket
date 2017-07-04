@@ -1,19 +1,10 @@
 package org.gama.pac4j.wicket;
 
-import java.util.List;
-
 import org.apache.wicket.authroles.authentication.AbstractAuthenticatedWebSession;
 import org.apache.wicket.authroles.authentication.AuthenticatedWebApplication;
 import org.apache.wicket.authroles.authorization.strategies.role.Roles;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.request.Request;
-import org.apache.wicket.request.Url;
-import org.apache.wicket.request.cycle.RequestCycle;
-import org.pac4j.core.client.Client;
-import org.pac4j.core.client.IndirectClient;
-import org.pac4j.core.config.Config;
-import org.pac4j.core.context.WebContext;
-import org.pac4j.core.http.AjaxRequestResolver;
 import org.pac4j.core.profile.CommonProfile;
 
 /**
@@ -21,64 +12,29 @@ import org.pac4j.core.profile.CommonProfile;
  */
 public abstract class Pac4jApplication extends AuthenticatedWebApplication {
 	
-	private Url indirectClientCallbackUrl;
-	
-	private Config config;
-	
 	@Override
 	protected void init() {
 		super.init();
 		
-		config = new Config("authenticationCallback", getClients());
+		getStrategy().init();
 		
-		IndirectClientCallbackRequestHandler indirectClientCallbackHandler = new IndirectClientCallbackRequestHandler(getConfig());
-		MountedRequestHandlerMapper authenticationCallback = new MountedRequestHandlerMapper("authenticationCallback", indirectClientCallbackHandler);
-		mount(authenticationCallback);
-		
-		indirectClientCallbackUrl = authenticationCallback.mapHandler(new IndirectClientCallbackRequestHandler(getConfig()));
-		
-		mount(new MountedRequestHandlerMapper("logout", new LogoutRequestHandler(getConfig())));
-		getRequestCycleListeners().add(new Pac4jRequestCycleListener(getConfig()));
+		getRequestCycleListeners().add(new Pac4jRequestCycleListener(getStrategy().getConfig()));
 	}
 	
-	public Config getConfig() {
-		return config;
-	}
-	
-	/**
-	 * To be overriden to return {@link Client} for authentication
-	 * @return a (non null) list of {@link Client} for authentication
-	 */
-	public abstract List<Client> getClients();
+	public abstract Pac4jWicketAuthenticationStrategy getStrategy();
 	
 	@Override
 	public void restartResponseAtSignInPage() {
-		Client client = getConfig().getClients().getClients().get(0);
-		IndirectClient currentClient = (IndirectClient) client;
-		String callbackUrl = RequestCycle.get().getUrlRenderer().renderFullUrl(indirectClientCallbackUrl);
-		currentClient.setCallbackUrl(callbackUrl);
-		WicketSecurityLogic securityLogic = new WicketSecurityLogic();
-		securityLogic.perform(client);
-		
-		currentClient.setAjaxRequestResolver(new AjaxRequestResolver() {
-			/**
-			 * Overriden only to escape from the {@link IndirectClient#getRedirectAction(WebContext)} Ajax test
-			 * and so goes to the authentication or redirection case. Ugly.
-			 * TODO: revert the {@link AjaxRequestResolver} of the client ?
-			 * TODO: ensure that it works !
-			 */
-			@Override
-			public boolean isAjax(WebContext context) {
-				return false;
-			}
-		});
+		getStrategy().restartResponseAtSignPage();
 	}
 	
 	/**
-	 * @return the login page class only in case of direct client authentication, else (indirect client) null
+	 * @return the login page class only in case of direct client authentication, else will throw a {@link ClassCastException}
 	 */
 	@Override
-	protected abstract Class<? extends WebPage> getSignInPageClass();
+	protected Class<? extends WebPage> getSignInPageClass() {
+		return ((DirectAuthenticationStrategy) getStrategy()).getSignInPageClass();
+	}
 	
 	public static class Pac4jSession extends AbstractAuthenticatedWebSession {
 		

@@ -50,7 +50,7 @@ public class WicketSecurityLogic extends DefaultSecurityLogic<Void, J2EContext> 
 	public void perform(String clientsNames) {
 		perform(
 				SecurityContext.getCurrentWebContext(),
-				((Pac4jApplication) Application.get()).getConfig(),
+				((Pac4jApplication) Application.get()).getStrategy().getConfig(),
 				(ctx, parameters) -> null,	// TODO: adapt Wicket Session role, for DirectClient use case
 				(code, ctx) -> null,	// created to adapt perform(..) method return, nothing to do since we don't care about the return
 				clientsNames,	// of course our clients
