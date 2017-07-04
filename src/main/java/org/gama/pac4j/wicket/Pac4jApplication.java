@@ -45,15 +45,19 @@ public abstract class Pac4jApplication extends AuthenticatedWebApplication {
 		return config;
 	}
 	
+	/**
+	 * To be overriden to return {@link Client} for authentication
+	 * @return a (non null) list of {@link Client} for authentication
+	 */
 	public abstract List<Client> getClients();
 	
+	@Override
 	public void restartResponseAtSignInPage() {
-		
 		Client client = getConfig().getClients().getClients().get(0);
 		IndirectClient currentClient = (IndirectClient) client;
 		String callbackUrl = RequestCycle.get().getUrlRenderer().renderFullUrl(indirectClientCallbackUrl);
 		currentClient.setCallbackUrl(callbackUrl);
-		WicketSecurityLogic securityLogic = new WicketSecurityLogic(callbackUrl);
+		WicketSecurityLogic securityLogic = new WicketSecurityLogic();
 		securityLogic.perform(client);
 		
 		currentClient.setAjaxRequestResolver(new AjaxRequestResolver() {
@@ -79,9 +83,9 @@ public abstract class Pac4jApplication extends AuthenticatedWebApplication {
 	public static class Pac4jSession extends AbstractAuthenticatedWebSession {
 		
 		/**
-		 * Construct.
+		 * Default, lonely, constructor
 		 *
-		 * @param request The current request object
+		 * @param request the current request object
 		 */
 		public Pac4jSession(Request request) {
 			super(request);
