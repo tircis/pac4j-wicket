@@ -24,7 +24,7 @@ public class Pac4jRequestCycleListener implements IRequestCycleListener {
 	}
 	
 	/**
-	 * This implementation creates a new {@link SecurityContext} available throught {@link SecurityContext#get()}
+	 * This implementation creates a new {@link SecurityContext} available through {@link SecurityContext#get()}
 	 * @param cycle the current {@link RequestCycle}
 	 */
 	public void onBeginRequest(RequestCycle cycle) {
