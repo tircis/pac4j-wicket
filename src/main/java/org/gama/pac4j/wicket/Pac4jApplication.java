@@ -4,6 +4,7 @@ import org.apache.wicket.authroles.authentication.AbstractAuthenticatedWebSessio
 import org.apache.wicket.authroles.authentication.AuthenticatedWebApplication;
 import org.apache.wicket.authroles.authorization.strategies.role.Roles;
 import org.apache.wicket.markup.html.WebPage;
+import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.request.Request;
 import org.pac4j.core.profile.CommonProfile;
 
@@ -11,6 +12,10 @@ import org.pac4j.core.profile.CommonProfile;
  * @author Guillaume Mary
  */
 public abstract class Pac4jApplication extends AuthenticatedWebApplication {
+	
+	public static Pac4jApplication get() {
+		return (Pac4jApplication) WebApplication.get();
+	}
 	
 	@Override
 	protected void init() {
@@ -28,13 +33,9 @@ public abstract class Pac4jApplication extends AuthenticatedWebApplication {
 		getStrategy().restartResponseAtSignPage();
 	}
 	
-	/**
-	 * @return the login page class only in case of direct client authentication, else will throw a {@link ClassCastException}
-	 */
+	/** Overriden to make it public, then accessible from WicketClient */
 	@Override
-	protected Class<? extends WebPage> getSignInPageClass() {
-		return ((DirectAuthenticationStrategy) getStrategy()).getSignInPageClass();
-	}
+	public abstract Class<? extends WebPage> getSignInPageClass();
 	
 	public static class Pac4jSession extends AbstractAuthenticatedWebSession {
 		
